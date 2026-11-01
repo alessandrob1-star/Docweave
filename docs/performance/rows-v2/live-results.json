@@ -1,0 +1,137 @@
+[
+  {
+    "file": "attachment_07.pdf",
+    "model": "qwen2.5:14b-instruct",
+    "extraction_seconds": 0.251,
+    "source_sha256": "d57248fcb16d2069f3837c180c508d77f2aa424b380526f43d145bf7433f44d0",
+    "validated": true,
+    "predicted_class": "supplier_receipt",
+    "evidence_count": 3,
+    "inference_seconds": 9.784,
+    "retry_attempts": 0,
+    "requests": [
+      {
+        "wall_seconds": 9.784,
+        "input_tokens": 1388,
+        "output_tokens": 270,
+        "load_duration_ns": 3697700,
+        "prompt_eval_duration_ns": 313821000,
+        "eval_duration_ns": 9451224000,
+        "done_reason": "stop"
+      }
+    ],
+    "memory": {
+      "bytes": 10279599471,
+      "gpu_bytes": 10279599471,
+      "context": 8192
+    }
+  },
+  {
+    "file": "attachment_081.pdf",
+    "model": "qwen2.5:14b-instruct",
+    "extraction_seconds": 0.231,
+    "source_sha256": "7fdfcbe81a5a41cac17d9428f35d0c9a136706256db93cbf0b043d41acec9999",
+    "validated": true,
+    "predicted_class": "invoice",
+    "evidence_count": 6,
+    "inference_seconds": 14.288,
+    "retry_attempts": 0,
+    "requests": [
+      {
+        "wall_seconds": 14.287,
+        "input_tokens": 1331,
+        "output_tokens": 398,
+        "load_duration_ns": 3651500,
+        "prompt_eval_duration_ns": 32584000,
+        "eval_duration_ns": 14106579000,
+        "done_reason": "stop"
+      }
+    ],
+    "memory": {
+      "bytes": 10279599471,
+      "gpu_bytes": 10279599471,
+      "context": 8192
+    }
+  },
+  {
+    "file": "attachment_094.pdf",
+    "model": "qwen2.5:14b-instruct",
+    "extraction_seconds": 0.234,
+    "source_sha256": "8074bdd4b64b2483cc6ee5100a1f517bd80b4ec0ffbf4d7e3541f4ff403a0c93",
+    "validated": true,
+    "predicted_class": "purchase_order",
+    "evidence_count": 4,
+    "inference_seconds": 12.774,
+    "retry_attempts": 0,
+    "requests": [
+      {
+        "wall_seconds": 12.773,
+        "input_tokens": 1341,
+        "output_tokens": 350,
+        "load_duration_ns": 3120000,
+        "prompt_eval_duration_ns": 31723000,
+        "eval_duration_ns": 12586143000,
+        "done_reason": "stop"
+      }
+    ],
+    "memory": {
+      "bytes": 10279599471,
+      "gpu_bytes": 10279599471,
+      "context": 8192
+    }
+  },
+  {
+    "file": "attachment_162.pdf",
+    "model": "qwen2.5:14b-instruct",
+    "extraction_seconds": 0.282,
+    "source_sha256": "adb02409110375a7e36558ad6daa23a618a9b33bd639151444e59a5b3f1082ec",
+    "validated": true,
+    "predicted_class": "supplier_receipt",
+    "evidence_count": 3,
+    "inference_seconds": 11.66,
+    "retry_attempts": 0,
+    "requests": [
+      {
+        "wall_seconds": 11.66,
+        "input_tokens": 1214,
+        "output_tokens": 320,
+        "load_duration_ns": 3749600,
+        "prompt_eval_duration_ns": 32072000,
+        "eval_duration_ns": 11483364000,
+        "done_reason": "stop"
+      }
+    ],
+    "memory": {
+      "bytes": 10279599471,
+      "gpu_bytes": 10279599471,
+      "context": 8192
+    }
+  },
+  {
+    "file": "attachment_07.pdf",
+    "model": "qwen2.5:14b-instruct",
+    "extraction_seconds": 0.299,
+    "source_sha256": "d57248fcb16d2069f3837c180c508d77f2aa424b380526f43d145bf7433f44d0",
+    "validated": true,
+    "predicted_class": "supplier_receipt",
+    "evidence_count": 3,
+    "inference_seconds": 9.507,
+    "retry_attempts": 0,
+    "requests": [
+      {
+        "wall_seconds": 9.507,
+        "input_tokens": 1388,
+        "output_tokens": 270,
+        "load_duration_ns": 5234400,
+        "prompt_eval_duration_ns": 29763000,
+        "eval_duration_ns": 9328612000,
+        "done_reason": "stop"
+      }
+    ],
+    "memory": {
+      "bytes": 10279599471,
+      "gpu_bytes": 10279599471,
+      "context": 8192
+    }
+  }
+]

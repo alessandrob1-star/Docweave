@@ -2,11 +2,14 @@
 
 ## Latest local-model calibration
 
-See [the tuning report](performance/local-model-tuning.md) for actual requests,
-GPU placement, before/after latency, and the live three-document worker proof.
-The latest full local suite passed **480 tests in 85.32 seconds**, with **86%
-aggregate coverage**. Ruff and MyPy passed for application, tests, and the
-reproducible benchmark script.
+See [the response-row tuning report](performance/response-row-tuning.md) for
+the latest measurements and live three-document worker proof. The latest full
+local suite passed **505 tests in 79.50 seconds**, with **86% aggregate coverage**.
+Ruff and MyPy passed for all 106 application, test, and benchmark modules.
+The codec tests verify exact preservation of model-authored values and rejection
+of malformed rows, duplicate keys, missing versions, invalid references, and
+unknown wire formats. The previous calibration report remains available with
+its original measurements.
 
 An earlier full run had one extraction-worker timeout on `upload_2784.pdf`.
 Its isolated rerun completed in 0.26 s and the subsequent full suite passed.
@@ -18,7 +21,7 @@ default. That default now uses the launch working directory instead of the
 installed module directory. The affected desktop test passed against a newly
 built, normally installed wheel. Hosted status is reported separately.
 
-## Automated checks
+## Initial automated checks
 
 - Python 3.14 on Windows; isolated local virtual environment.
 - Ruff lint and formatting checks passed.
@@ -37,7 +40,7 @@ coverage** (statements and branches). No warnings were reported in this final
 run. MyPy passed for all 101 application and test modules. No manual acceptance
 or security certification is implied.
 
-## Live local inference
+## Initial local inference before calibration
 
 Input: synthetic `attachment_07.pdf`, two pages.
 Model: installed `qwen2.5:14b-instruct` through loopback Ollama.

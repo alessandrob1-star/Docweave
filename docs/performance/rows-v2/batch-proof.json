@@ -1,0 +1,53 @@
+{
+  "started": [
+    "attachment_081.pdf",
+    "attachment_094.pdf",
+    "attachment_162.pdf"
+  ],
+  "predicted_classes": [
+    "invoice",
+    "purchase_order",
+    "supplier_receipt"
+  ],
+  "errors": [],
+  "summary": [
+    {
+      "completed": 3,
+      "failed": 0,
+      "total": 3
+    }
+  ],
+  "persisted_counts": {
+    "documents": 3,
+    "agent_runs": 3,
+    "proposals": 3
+  },
+  "runtime": [
+    {
+      "duration_ms": 13733,
+      "input_tokens": 1331,
+      "model_id": "qwen2.5:14b-instruct",
+      "output_tokens": 398,
+      "prompt_version": "classification.ollama.rows.v2",
+      "retry_attempts": 0
+    },
+    {
+      "duration_ms": 12197,
+      "input_tokens": 1341,
+      "model_id": "qwen2.5:14b-instruct",
+      "output_tokens": 350,
+      "prompt_version": "classification.ollama.rows.v2",
+      "retry_attempts": 0
+    },
+    {
+      "duration_ms": 10987,
+      "input_tokens": 1214,
+      "model_id": "qwen2.5:14b-instruct",
+      "output_tokens": 320,
+      "prompt_version": "classification.ollama.rows.v2",
+      "retry_attempts": 0
+    }
+  ],
+  "expected_prompt_version": "classification.ollama.rows.v2",
+  "source_files_unchanged": true
+}

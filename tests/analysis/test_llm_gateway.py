@@ -8,6 +8,7 @@ from docweave.analysis import (
     LlmGatewayConfig,
     LlmGatewayError,
 )
+from docweave.analysis.compact_response import WIRE_VERSION
 from docweave.analysis.llm_gateway import OllamaClient
 from docweave.extraction import ExtractedPage
 
@@ -131,3 +132,36 @@ def test_oversized_prompt_is_rejected_before_transport() -> None:
         NoTransport(LlmGatewayConfig()).converse(
             system=[{"text": "x" * 32_768}], messages=[]
         )
+
+
+def test_invalid_wire_row_is_retried_without_repairing_model_output() -> None:
+    class RowClient(FakeClient):
+        def converse(self, **kwargs: Any) -> dict[str, Any]:
+            response = super().converse(**kwargs)
+            payload = json.loads(_proposal_json())
+            rows: list[list[Any]] = (
+                [["ev_1", "p0_s1"]]
+                if self.calls == 1
+                else [["ev_1", "p0_s1", ["classification"]]]
+            )
+            payload["evidence"] = rows
+            response["message"]["content"] = json.dumps(payload)
+            response["_docweave_response_format"] = WIRE_VERSION
+            return response
+
+    client = RowClient(_proposal_json())
+    result = LlmClassificationGateway(client).classify(PAGES)
+    assert client.calls == 2
+    assert result.provenance.retry_attempts == 1
+    assert result.proposal.proposed_class.value == "invoice"
+
+
+def test_unknown_wire_format_is_rejected_without_a_format_fallback() -> None:
+    class UnknownFormat(FakeClient):
+        def converse(self, **kwargs: Any) -> dict[str, Any]:
+            response = super().converse(**kwargs)
+            response["_docweave_response_format"] = "unknown"
+            return response
+
+    with pytest.raises(LlmGatewayError):
+        LlmClassificationGateway(UnknownFormat(_proposal_json())).classify(PAGES)

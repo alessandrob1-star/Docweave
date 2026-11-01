@@ -14,6 +14,7 @@ from urllib.error import URLError
 from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, ProxyHandler, Request, build_opener
 
+from docweave.analysis.compact_response import WIRE_VERSION, expand_compact_response
 from docweave.analysis.contracts import (
     CLASSIFICATION_CONTRACT_VERSION,
     ClassificationProposal,
@@ -234,7 +235,9 @@ class OllamaClient:
             payload = build_local_request(self.config.model_id, kwargs)
         except LocalContextLimitError as error:
             raise LlmGatewayError(LlmGatewayErrorCode.REQUEST_INVALID) from error
-        return self.request("/api/chat", payload)
+        response = self.request("/api/chat", payload)
+        response["_docweave_response_format"] = WIRE_VERSION
+        return response
 
 
 def model_available() -> bool:
@@ -294,6 +297,11 @@ class LlmClassificationGateway:
             _validate_stop_reason(stop_reason)
             response_text = _response_text(response)
             try:
+                wire_format = response.get("_docweave_response_format")
+                if wire_format == WIRE_VERSION:
+                    response_text = expand_compact_response(response_text)
+                elif wire_format is not None:
+                    raise LlmGatewayError(LlmGatewayErrorCode.RESPONSE_INVALID)
                 proposal = decode_classification_v1(
                     response_text,
                     extracted_pages=pages,

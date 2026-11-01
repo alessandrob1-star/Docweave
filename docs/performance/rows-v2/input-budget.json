@@ -1,0 +1,8 @@
+{
+  "kind": "input-budget-check-only-not-inference",
+  "count": 100,
+  "fitting": 100,
+  "budget_bytes": 5632,
+  "maximum_prompt_bytes": 5586,
+  "minimum_prompt_bytes": 4885
+}

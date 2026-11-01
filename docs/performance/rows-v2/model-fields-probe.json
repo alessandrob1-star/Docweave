@@ -1,0 +1,193 @@
+[
+  {
+    "file": "attachment_081.pdf",
+    "seconds": 14.549,
+    "output_tokens": 396,
+    "input_tokens": 1331,
+    "valid": true,
+    "predicted_class": "invoice",
+    "evidence_count": 6,
+    "metadata": [
+      {
+        "name": "document_id",
+        "value": "INV-2026-0051",
+        "evidence_ids": [
+          "ev_1"
+        ]
+      },
+      {
+        "name": "issue_date",
+        "value": "2026-09-21",
+        "evidence_ids": [
+          "ev_2"
+        ]
+      },
+      {
+        "name": "dossier_id",
+        "value": "DOS-2026-004",
+        "evidence_ids": [
+          "ev_3"
+        ]
+      },
+      {
+        "name": "due_date",
+        "value": "2026-11-05",
+        "evidence_ids": [
+          "ev_4"
+        ]
+      },
+      {
+        "name": "issuer",
+        "value": "Vega Field Operations SRL",
+        "evidence_ids": [
+          "ev_5"
+        ]
+      },
+      {
+        "name": "total_amount",
+        "value": "EUR 3,060.98",
+        "evidence_ids": [
+          "ev_6"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "attachment_094.pdf",
+    "seconds": 13.091,
+    "output_tokens": 353,
+    "input_tokens": 1341,
+    "valid": true,
+    "predicted_class": "purchase_order",
+    "evidence_count": 4,
+    "metadata": [
+      {
+        "name": "document_id",
+        "value": "PO-2026-0052",
+        "evidence_ids": [
+          "ev_1"
+        ]
+      },
+      {
+        "name": "issue_date",
+        "value": "2026-09-22",
+        "evidence_ids": [
+          "ev_2"
+        ]
+      },
+      {
+        "name": "related_ids",
+        "value": "REF-20260052, DOS-005",
+        "evidence_ids": [
+          "ev_3"
+        ]
+      },
+      {
+        "name": "due_date",
+        "value": "2026-10-06",
+        "evidence_ids": [
+          "ev_3"
+        ]
+      },
+      {
+        "name": "issuer",
+        "value": "Lumen Grid Supplies GmbH",
+        "evidence_ids": [
+          "ev_4"
+        ]
+      },
+      {
+        "name": "customer",
+        "value": "Trial Archive Services Ltd",
+        "evidence_ids": [
+          "ev_4"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "attachment_162.pdf",
+    "seconds": 11.607,
+    "output_tokens": 329,
+    "input_tokens": 1214,
+    "valid": true,
+    "predicted_class": "supplier_receipt",
+    "evidence_count": 3,
+    "metadata": [
+      {
+        "name": "document_id",
+        "value": "REC-2026-0055",
+        "evidence_ids": [
+          "ev_1"
+        ]
+      },
+      {
+        "name": "dossier_id",
+        "value": "DOS-2026-008",
+        "evidence_ids": [
+          "ev_1"
+        ]
+      },
+      {
+        "name": "issuer",
+        "value": "Cedar Peak Technology SAS",
+        "evidence_ids": [
+          "ev_2"
+        ]
+      },
+      {
+        "name": "counterparty",
+        "value": "Trial Archive Services Ltd",
+        "evidence_ids": [
+          "ev_2"
+        ]
+      },
+      {
+        "name": "receipt_amount",
+        "value": "EUR 2,071.70",
+        "evidence_ids": [
+          "ev_3"
+        ]
+      },
+      {
+        "name": "point_of_capture",
+        "value": "Mobile scan",
+        "evidence_ids": [
+          "ev_3"
+        ]
+      }
+    ]
+  },
+  {
+    "file": "attachment_07.pdf",
+    "seconds": 9.758,
+    "output_tokens": 270,
+    "input_tokens": 1388,
+    "valid": true,
+    "predicted_class": "supplier_receipt",
+    "evidence_count": 3,
+    "metadata": [
+      {
+        "name": "document_id",
+        "value": "DN-2026-001",
+        "evidence_ids": [
+          "ev_1"
+        ]
+      },
+      {
+        "name": "dossier_id",
+        "value": "DOS-2026-001",
+        "evidence_ids": [
+          "ev_2"
+        ]
+      },
+      {
+        "name": "related_ids",
+        "value": "PO-2026-001",
+        "evidence_ids": [
+          "ev_3"
+        ]
+      }
+    ]
+  }
+]

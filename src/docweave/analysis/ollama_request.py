@@ -3,14 +3,14 @@
 import json
 from typing import Any
 
-from docweave.analysis.schema import classification_v1_json_schema
+from docweave.analysis.compact_response import WIRE_INSTRUCTION, compact_response_schema
 from docweave.analysis.taxonomy import TAXONOMY_DEFINITIONS
 
 LOCAL_CONTEXT_TOKENS = 8_192
 LOCAL_OUTPUT_TOKENS = 2_048
 LOCAL_TEMPLATE_RESERVE = 512
 LOCAL_MAXIMUM_EVIDENCE = 8
-LOCAL_PROMPT_VERSION = "classification.ollama.compact.v1"
+LOCAL_PROMPT_VERSION = "classification.ollama.rows.v2"
 _CONTEXT_TIERS = (8_192, 12_288, 16_384, 24_576, 32_768)
 
 
@@ -24,7 +24,12 @@ def build_local_request(model_id: str, request: dict[str, Any]) -> dict[str, Any
         f"{item.class_code.value}: {item.definition}" for item in TAXONOMY_DEFINITIONS
     )
     system = "\n".join(item["text"] for item in request["system"])
-    messages = [{"role": "system", "content": system + "\nClasses:\n" + definitions}]
+    messages = [
+        {
+            "role": "system",
+            "content": system + "\nClasses:\n" + definitions + "\n" + WIRE_INSTRUCTION,
+        }
+    ]
     for message in request["messages"]:
         payload = json.loads(message["content"][0]["text"])
         segments = payload["evidence_segments"]
@@ -48,12 +53,7 @@ def build_local_request(model_id: str, request: dict[str, Any]) -> dict[str, Any
                 ),
             }
         )
-    schema = classification_v1_json_schema()
-    schema["properties"]["evidence"]["maxItems"] = LOCAL_MAXIMUM_EVIDENCE
-    metadata = schema["properties"]["candidate_metadata"]["items"]["properties"]
-    metadata["name"]["pattern"] = "^[a-z][a-z0-9_]{0,63}$"
-    metadata["evidence_ids"]["minItems"] = 1
-    _compact_evidence_enums(schema)
+    schema = compact_response_schema()
     # Qwen's byte-level tokenizer needs at most one token per UTF-8 byte.
     # Reserve output and chat-template space without ever slicing document text.
     required = (
@@ -75,17 +75,3 @@ def build_local_request(model_id: str, request: dict[str, Any]) -> dict[str, Any
             "num_ctx": context,
         },
     }
-
-
-def _compact_evidence_enums(node: Any) -> None:
-    if isinstance(node, dict):
-        values = node.get("enum")
-        if isinstance(values, list) and values and values[0] == "ev_1":
-            node["enum"] = [
-                f"ev_{index}" for index in range(1, LOCAL_MAXIMUM_EVIDENCE + 1)
-            ]
-        for value in node.values():
-            _compact_evidence_enums(value)
-    elif isinstance(node, list):
-        for value in node:
-            _compact_evidence_enums(value)

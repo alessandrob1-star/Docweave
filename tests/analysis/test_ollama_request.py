@@ -45,9 +45,9 @@ def test_local_schema_keeps_the_contract_and_does_not_mutate_shared_schema() -> 
     assert schema["additionalProperties"] is False
     assert schema["properties"]["evidence"]["maxItems"] == LOCAL_MAXIMUM_EVIDENCE
     assert schema["properties"]["candidate_metadata"]["maxItems"] == 6
-    metadata = schema["properties"]["candidate_metadata"]["items"]["properties"]
-    assert metadata["name"]["pattern"] == "^[a-z][a-z0-9_]{0,63}$"
-    assert metadata["evidence_ids"]["minItems"] == 1
+    metadata = schema["properties"]["candidate_metadata"]["items"]["prefixItems"]
+    assert metadata[0]["pattern"] == "^[a-z][a-z0-9_]{0,63}$"
+    assert metadata[2]["minItems"] == 1
     assert classification_v1_json_schema() == original
 
 
