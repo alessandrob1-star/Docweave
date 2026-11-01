@@ -1,4 +1,5 @@
 from pathlib import Path
+from threading import Event
 from typing import Any, cast
 from uuid import UUID
 
@@ -86,6 +87,62 @@ def close_cockpit_window(window: CockpitWindow) -> None:
     window.close()
     window.deleteLater()
     QCoreApplication.processEvents()
+
+
+def test_analysis_status_is_visible_while_model_pipeline_is_waiting(
+    qt_application: object,
+) -> None:
+    corpus = Path("pdf_sintetici").resolve(strict=True)
+    first_pdf = sorted(corpus.glob("*.pdf"))[0]
+    release = Event()
+    observed: list[str] = []
+
+    def waiting_classification(
+        source_path: Path, authorized_root: Path
+    ) -> ClassificationCommandResult:
+        if not release.wait(timeout=2):
+            raise TimeoutError("Test did not observe the running status.")
+        return ClassificationCommandResult(
+            proposed_class="invoice",
+            document_disposition="applied",
+            taxonomy_disposition="simple_schema",
+            proposal_disposition="applied",
+            input_tokens=10,
+            output_tokens=5,
+            total_tokens=15,
+            estimated_cost_usd=None,
+        )
+
+    window = CockpitWindow(
+        classification_function=waiting_classification,
+        runtime_preflight_function=ready_runtime_preflight_report,
+    )
+    window.set_authorized_root(corpus)
+    window.left.set_documents(
+        [Document(first_pdf.name, "PDF", "-", "READY", path=first_pdf)]
+    )
+    timer = QTimer()
+    timer.setInterval(10)
+
+    def observe_running_status() -> None:
+        if window.center.analysis_title.text() != "ANALYZING":
+            return
+        assert not window.center.analysis_panel.isHidden()
+        observed.append(window.center.analysis_summary.text())
+        timer.stop()
+        release.set()
+
+    timer.timeout.connect(observe_running_status)
+    timer.start()
+    try:
+        window._analyze_selected_document()
+        wait_for_cockpit_classification(window)
+        assert observed == [f"Document 1/1: {first_pdf.name}"]
+        assert window.center.analysis_title.text() == "AI PROPOSAL"
+    finally:
+        timer.stop()
+        release.set()
+        close_cockpit_window(window)
 
 
 def ready_runtime_preflight_report() -> RuntimePreflightReport:

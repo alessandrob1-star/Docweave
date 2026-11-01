@@ -43,6 +43,19 @@ hardcoded correction, or remote inference fallback was introduced.
 
 ## Interface and manual acceptance
 
+Analysis-status follow-up: the existing upper analysis panel now displays
+`ANALYZING`, the current document name and batch position as each document
+starts. It changes to `AI PROPOSAL` when a validated result arrives, or
+`ANALYSIS FAILED` on error. No layout or button was removed. A controlled
+waiting-worker test verifies that the status appears before completion.
+The follow-up suite passed **475 tests in 102.73 seconds**, with **86% aggregate
+coverage**; all 31 desktop cockpit tests and strict type/lint checks passed.
+
+The first hosted build failed because editable installation without build
+isolation lacked a build helper. Hosted checks now install the normal wheel;
+local wheel construction, installation, and SQLite initialization passed.
+Hosted verification of this follow-up is tracked separately on GitHub Actions.
+
 A native Windows render confirmed the retained layout and controls, with the
 model button labeled LLM and the memory status labeled SQLite. The screenshot
 in the README is from this local application, not a previous deployment.

@@ -275,6 +275,15 @@ class ClassificationBatchItem:
 
 
 @dataclass(frozen=True)
+class ClassificationBatchStarted:
+    """Observed start of one document's analysis pipeline."""
+
+    source_path: Path
+    attempted: int
+    total: int
+
+
+@dataclass(frozen=True)
 class ClassificationBatchProgress:
     """One completed classification item from a cockpit batch."""
 
@@ -341,6 +350,7 @@ def classify_pdf_for_cockpit(
 class ClassificationWorker(QObject):
     """Run a configured classification batch outside the Qt user-interface thread."""
 
+    item_started = Signal(object)
     progressed = Signal(object)
     item_failed = Signal(object)
     completed = Signal(object)
@@ -364,6 +374,9 @@ class ClassificationWorker(QObject):
         failed = 0
         last_error_category: str | None = None
         for attempted, item in enumerate(self._items, start=1):
+            self.item_started.emit(
+                ClassificationBatchStarted(item.source_path, attempted, total)
+            )
             try:
                 result = self._classification_function(
                     item.source_path,
@@ -1875,6 +1888,16 @@ class CenterPreview(ShapeWidget):
             self.review_table.setRowHeight(table_row, 48)
         self.resizeEvent(None)
 
+    def show_analysis_status(self, *, title: str, summary: str, detail: str) -> None:
+        """Use the existing upper analysis panel for observed workflow state."""
+        self.analysis_title.setText(title)
+        self.analysis_summary.setText(summary)
+        self.analysis_rationale.setText(detail)
+        self.analysis_evidence.setText("")
+        self.analysis_panel.show()
+        self.analysis_panel.raise_()
+        self.resizeEvent(None)
+
     def show_classification_result(self, result: ClassificationCommandResult) -> None:
         """Surface validated model proposal details without replacing the preview."""
         confidence = "n/a" if result.raw_confidence is None else result.raw_confidence
@@ -1883,6 +1906,7 @@ class CenterPreview(ShapeWidget):
             if result.retry_attempts == 0
             else f"{result.retry_attempts} validation retry"
         )
+        self.analysis_title.setText("AI PROPOSAL")
         self.analysis_summary.setText(
             f"{result.proposed_class} · confidence {confidence} · "
             f"{result.evidence_count} evidence · {result.metadata_count} metadata · "
@@ -3486,6 +3510,7 @@ class CockpitWindow(QMainWindow):
         )
         worker.moveToThread(thread)
         thread.started.connect(worker.run)
+        worker.item_started.connect(self._handle_classification_started)
         worker.progressed.connect(self._handle_classification_progress)
         worker.item_failed.connect(self._handle_classification_item_failed)
         worker.completed.connect(self._handle_classification_completed)
@@ -3502,6 +3527,33 @@ class CockpitWindow(QMainWindow):
             f"Classifying {len(batch_items)} ready PDF(s) through configured runtime."
         )
         thread.start()
+
+    @Slot(object)
+    def _handle_classification_started(self, raw_started: object) -> None:
+        if not isinstance(raw_started, ClassificationBatchStarted):
+            return
+        self.center.open_document(raw_started.source_path)
+        self.center.show_analysis_status(
+            title="ANALYZING",
+            summary=(
+                f"Document {raw_started.attempted}/{raw_started.total}: "
+                f"{raw_started.source_path.name}"
+            ),
+            detail="Reading PDF and requesting local LLM analysis; awaiting result.",
+        )
+        self._set_status(
+            f"Analysis in progress {raw_started.attempted}/{raw_started.total}; "
+            "local LLM pipeline active."
+        )
+        self.right.set_events(
+            [
+                ("CLASSIFIER", "Analysis in progress"),
+                ("DOCUMENT", raw_started.source_path.name),
+                ("BATCH", f"{raw_started.attempted}/{raw_started.total}"),
+                ("LLM", "Awaiting local analysis result"),
+                ("SECURITY", "No file mutation performed"),
+            ]
+        )
 
     @Slot(object)
     def _handle_classification_progress(self, raw_progress: object) -> None:
@@ -3604,6 +3656,11 @@ class CockpitWindow(QMainWindow):
         self._classification_batch_completed = raw_failure.completed
         self._classification_batch_failed = raw_failure.failed
         self._classification_batch_total = raw_failure.total
+        self.center.show_analysis_status(
+            title="ANALYSIS FAILED",
+            summary=raw_failure.source_path.name,
+            detail=f"Analysis failed: {raw_failure.error_category}. Ready to retry.",
+        )
         self._set_status(
             f"Classification item failed safely ({raw_failure.error_category}). "
             f"{raw_failure.completed} persisted, {raw_failure.failed} failed, "
@@ -3680,6 +3737,11 @@ class CockpitWindow(QMainWindow):
 
     @Slot(str)
     def _handle_classification_failed(self, error_category: str) -> None:
+        self.center.show_analysis_status(
+            title="ANALYSIS FAILED",
+            summary="Analysis stopped without a valid result.",
+            detail=f"Error: {error_category}. Ready documents can be retried.",
+        )
         if error_category == "llm:authentication_failed":
             self._llm_auth_state = "disconnected"
             self.console.set_llm_auth_state("disconnected")
