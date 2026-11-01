@@ -78,8 +78,10 @@ local wheel construction, installation, and SQLite initialization passed.
 Hosted verification of this follow-up is tracked separately on GitHub Actions.
 
 A native Windows render confirmed the retained layout and controls, with the
-model button labeled LLM and the memory status labeled SQLite. The screenshot
-in the README is from this local application, not a previous deployment.
+model button labeled LLM and the memory status labeled SQLite. That render is
+retained as `docs/assets/docweave-local.png`. At the owner's request, the README
+temporarily uses earlier-build workflow screenshots, explicitly labeled as
+temporary. Those images are not current runtime or integration proof.
 
 Manual approval, close/reopen, restore, and disconnected-internet acceptance
 remain pending. Follow `manual-testing.md`. Preserve the original source

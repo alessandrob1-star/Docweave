@@ -9,7 +9,35 @@ The desktop interface uses PySide6. Analysis runs through local Ollama with
 `qwen2.5:14b-instruct`. No hosted inference, account, or remote database is
 required. The application rejects non-local model and database endpoints.
 
-![DocWeave local desktop with SQLite memory and the LLM control](docs/assets/docweave-local.png)
+![DocWeave human review workflow - temporary screenshot](docs/assets/docweave-screenshot-03-human-review.png)
+
+*Temporary screenshots from an earlier interface build. Visible labels may differ
+from the current local runtime. Updated screenshots will follow.*
+
+<details>
+<summary>View the screenshot sequence</summary>
+
+### Folder scan and PDF preview
+
+![Folder scan and PDF preview](docs/assets/docweave-screenshot-01-folder-scan.png)
+
+### Analysis and evidence
+
+![Document analysis and evidence](docs/assets/docweave-screenshot-02-batch-analysis-memory.png)
+
+### Approved organization
+
+![Files organized after approval](docs/assets/docweave-screenshot-04-approved-organization.png)
+
+### Restore review
+
+![Human review before restoring original paths](docs/assets/docweave-screenshot-05-restore-review.png)
+
+### Restore complete
+
+![Original names and paths restored](docs/assets/docweave-screenshot-06-restore-complete.png)
+
+</details>
 
 ## Setup on Windows
 
