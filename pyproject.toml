@@ -1,0 +1,94 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "docweave"
+version = "0.1.0"
+description = "Local document organization with Ollama and SQLite memory."
+readme = "README.md"
+requires-python = ">=3.12"
+license = "MIT"
+authors = [
+  { name = "DocWeave contributors" },
+]
+dependencies = [
+  "PySide6==6.11.1",
+  "SQLAlchemy==2.0.51",
+]
+
+[project.scripts]
+docweave-classify-batch = "docweave.classification_cli:batch_main"
+docweave-classify-pdf = "docweave.classification_cli:main"
+docweave-desktop = "docweave.desktop.application:main"
+docweave-memory-evidence = "docweave.memory_evidence_report:main"
+docweave-memory-schema = "docweave.memory_schema_report:main"
+docweave-review-proposal = "docweave.review_cli:main"
+docweave-runtime-preflight = "docweave.runtime_preflight:main"
+
+[project.optional-dependencies]
+dev = [
+  "mypy==1.17.1",
+  "pytest==9.0.3",
+  "pytest-cov==6.2.1",
+  "ruff==0.12.5",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/docweave"]
+
+[tool.pytest.ini_options]
+addopts = [
+  "--strict-config",
+  "--strict-markers",
+  "--cov=docweave",
+  "--cov-report=term-missing",
+]
+testpaths = ["tests"]
+
+[tool.coverage.run]
+branch = true
+source = ["docweave"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = false
+
+[tool.ruff]
+line-length = 88
+src = ["src", "tests"]
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+  "A",
+  "B",
+  "C4",
+  "E",
+  "F",
+  "I",
+  "N",
+  "PL",
+  "PT",
+  "PTH",
+  "RET",
+  "RUF",
+  "S",
+  "SIM",
+  "UP",
+  "W",
+]
+ignore = [
+  "S101",
+]
+
+[tool.ruff.lint.per-file-ignores]
+"src/docweave/desktop/*.py" = ["N802"]
+"tests/**/*.py" = ["PLR2004"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+warn_unused_configs = true
+mypy_path = ["src", "services/api"]
+files = ["src", "tests"]

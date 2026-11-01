@@ -1,0 +1,294 @@
+"""Application-level composition for SQLite and Ollama runtime use.
+
+Composition initializes the local database schema and creates a model client.
+Inference occurs only when the user requests analysis.
+"""
+
+from __future__ import annotations
+
+import os
+from collections.abc import Mapping
+from dataclasses import dataclass, field
+from enum import StrEnum
+from typing import Any, Protocol
+from uuid import UUID
+
+from sqlalchemy.engine import Engine
+
+from docweave.analysis import (
+    APPROVED_LLM_MODEL_ID,
+    APPROVED_LLM_REGION,
+    CLASSIFICATION_CONTRACT_VERSION,
+    LlmClassificationGateway,
+    LlmGatewayConfig,
+    create_llm_runtime_client,
+)
+from docweave.persistence import (
+    SQLiteSimpleMemoryRepository,
+    SQLiteTransactionRunner,
+)
+from docweave.persistence.local_database import create_local_engine as create_engine
+from docweave.persistence.simple_memory_repository import SerializableTransactionRunner
+
+DOCWEAVE_DATABASE_URL = "DOCWEAVE_DATABASE_URL"
+DOCWEAVE_WORKSPACE_ID = "DOCWEAVE_WORKSPACE_ID"
+DOCWEAVE_TAXONOMY_VERSION_ID = "DOCWEAVE_TAXONOMY_VERSION_ID"
+DOCWEAVE_APPROVED_BY_ACTOR_ID = "DOCWEAVE_APPROVED_BY_ACTOR_ID"
+DOCWEAVE_CLASSIFICATION_PROMPT_VERSION = "DOCWEAVE_CLASSIFICATION_PROMPT_VERSION"
+
+
+class RuntimeConfigurationErrorCode(StrEnum):
+    """Content-free runtime configuration failure categories."""
+
+    DATABASE_URL_MISSING = "database_url_missing"
+    IDENTIFIER_MISSING = "identifier_missing"
+    IDENTIFIER_INVALID = "identifier_invalid"
+    PROMPT_VERSION_INVALID = "prompt_version_invalid"
+
+
+class RuntimeConfigurationError(RuntimeError):
+    """Sanitized configuration error that never includes secret values."""
+
+    def __init__(
+        self,
+        code: RuntimeConfigurationErrorCode,
+        *,
+        variable_name: str,
+    ) -> None:
+        super().__init__(code.value)
+        self.code = code
+        self.variable_name = variable_name
+
+
+@dataclass(frozen=True, slots=True)
+class RuntimeIntegrationSnapshot:
+    """Read-only startup visibility for configured external integrations."""
+
+    sqlite_configured: bool
+    llm_region: str
+    llm_model_id: str
+
+    @property
+    def sqlite_status(self) -> str:
+        """Return a compact user-interface status without exposing secrets."""
+        return "Configured" if self.sqlite_configured else "Not configured"
+
+    @property
+    def llm_status(self) -> str:
+        """Return the approved Llm client configuration status."""
+        return "Client configured"
+
+
+@dataclass(frozen=True, slots=True)
+class RuntimeEnvironmentConfig:
+    """Validated application configuration required for persistent analysis."""
+
+    database_url: str
+    workspace_id: UUID
+    taxonomy_version_id: UUID
+    approved_by_actor_id: UUID
+    classification_prompt_version: str = CLASSIFICATION_CONTRACT_VERSION
+    llm_config: LlmGatewayConfig = field(default_factory=LlmGatewayConfig)
+
+    def __post_init__(self) -> None:
+        if not self.database_url.strip():
+            raise RuntimeConfigurationError(
+                RuntimeConfigurationErrorCode.DATABASE_URL_MISSING,
+                variable_name=DOCWEAVE_DATABASE_URL,
+            )
+        if not self.classification_prompt_version.strip():
+            raise RuntimeConfigurationError(
+                RuntimeConfigurationErrorCode.PROMPT_VERSION_INVALID,
+                variable_name=DOCWEAVE_CLASSIFICATION_PROMPT_VERSION,
+            )
+
+
+@dataclass(frozen=True, slots=True)
+class ConfiguredClassificationRuntime:
+    """Lazily composed runtime dependencies for real classification work."""
+
+    config: RuntimeEnvironmentConfig
+    engine: Engine
+    gateway: LlmClassificationGateway
+
+
+@dataclass(frozen=True, slots=True)
+class ConfiguredReviewDecisionRuntime:
+    """Lazily composed runtime dependencies for durable review decisions."""
+
+    config: RuntimeEnvironmentConfig
+    engine: Engine
+    transaction_runner: SQLiteTransactionRunner
+    repository: SQLiteSimpleMemoryRepository
+
+
+class SessionLike(Protocol):
+    """Local transport injection surface."""
+
+    def client(self, service_name: str, **kwargs: Any) -> Any:
+        """Create a local transport."""
+
+
+class EngineFactory(Protocol):
+    """Narrow SQLAlchemy engine factory used for deterministic tests."""
+
+    def __call__(self, url: str, **kwargs: Any) -> Engine:
+        """Create a lazy SQLAlchemy engine without opening a connection."""
+
+
+class TransactionRunnerFactory(Protocol):
+    """Narrow transaction runner factory used for deterministic tests."""
+
+    def __call__(self, engine: Engine) -> SQLiteTransactionRunner:
+        """Create a serializable transaction runner."""
+
+
+class ReviewRepositoryFactory(Protocol):
+    """Narrow review repository factory used for deterministic tests."""
+
+    def __call__(
+        self, transaction_runner: SerializableTransactionRunner
+    ) -> SQLiteSimpleMemoryRepository:
+        """Create the simple memory repository."""
+
+
+def runtime_integration_snapshot(
+    environment: Mapping[str, str] | None = None,
+) -> RuntimeIntegrationSnapshot:
+    """Inspect configuration presence without connecting to external services."""
+    return RuntimeIntegrationSnapshot(
+        sqlite_configured=True,
+        llm_region=APPROVED_LLM_REGION,
+        llm_model_id=APPROVED_LLM_MODEL_ID,
+    )
+
+
+def load_runtime_environment_config(
+    environment: Mapping[str, str] | None = None,
+) -> RuntimeEnvironmentConfig:
+    """Load and validate the explicit environment needed for persistent analysis."""
+    values = environment if environment is not None else os.environ
+    return RuntimeEnvironmentConfig(
+        database_url=values.get(
+            DOCWEAVE_DATABASE_URL, "sqlite:///local-data/docweave.db"
+        ),
+        workspace_id=_required_uuid(
+            {DOCWEAVE_WORKSPACE_ID: "00000000-0000-4000-8000-000000000001", **values},
+            DOCWEAVE_WORKSPACE_ID,
+        ),
+        taxonomy_version_id=_required_uuid(
+            {
+                DOCWEAVE_TAXONOMY_VERSION_ID: "00000000-0000-4000-8000-000000000002",
+                **values,
+            },
+            DOCWEAVE_TAXONOMY_VERSION_ID,
+        ),
+        approved_by_actor_id=_required_uuid(
+            {
+                DOCWEAVE_APPROVED_BY_ACTOR_ID: "00000000-0000-4000-8000-000000000003",
+                **values,
+            },
+            DOCWEAVE_APPROVED_BY_ACTOR_ID,
+        ),
+        classification_prompt_version=values.get(
+            DOCWEAVE_CLASSIFICATION_PROMPT_VERSION,
+            CLASSIFICATION_CONTRACT_VERSION,
+        ),
+    )
+
+
+def build_configured_classification_runtime(
+    environment: Mapping[str, str] | None = None,
+    *,
+    session: SessionLike | None = None,
+    engine_factory: EngineFactory = create_engine,
+) -> ConfiguredClassificationRuntime:
+    """Compose SQLite and Llm dependencies without invoking either service."""
+    config = load_runtime_environment_config(environment)
+    engine = engine_factory(
+        config.database_url,
+        pool_pre_ping=True,
+        future=True,
+    )
+    client = create_llm_runtime_client(
+        config=config.llm_config,
+        session=session,
+    )
+    gateway = LlmClassificationGateway(
+        client,
+        config=config.llm_config,
+    )
+    return ConfiguredClassificationRuntime(
+        config=config,
+        engine=engine,
+        gateway=gateway,
+    )
+
+
+def build_configured_review_decision_runtime(
+    environment: Mapping[str, str] | None = None,
+    *,
+    engine_factory: EngineFactory = create_engine,
+    transaction_runner_factory: TransactionRunnerFactory = SQLiteTransactionRunner,
+    repository_factory: ReviewRepositoryFactory = SQLiteSimpleMemoryRepository,
+) -> ConfiguredReviewDecisionRuntime:
+    """Compose SQLite review-decision dependencies without database I/O."""
+    config = load_runtime_environment_config(environment)
+    engine = engine_factory(
+        config.database_url,
+        pool_pre_ping=True,
+        future=True,
+    )
+    transaction_runner = transaction_runner_factory(engine)
+    repository = repository_factory(transaction_runner)
+    return ConfiguredReviewDecisionRuntime(
+        config=config,
+        engine=engine,
+        transaction_runner=transaction_runner,
+        repository=repository,
+    )
+
+
+def _required_secret_like_value(values: Mapping[str, str], variable_name: str) -> str:
+    value = values.get(variable_name, "")
+    if not value.strip():
+        raise RuntimeConfigurationError(
+            RuntimeConfigurationErrorCode.DATABASE_URL_MISSING,
+            variable_name=variable_name,
+        )
+    return value
+
+
+def _required_uuid(values: Mapping[str, str], variable_name: str) -> UUID:
+    raw_value = values.get(variable_name, "")
+    if not raw_value.strip():
+        raise RuntimeConfigurationError(
+            RuntimeConfigurationErrorCode.IDENTIFIER_MISSING,
+            variable_name=variable_name,
+        )
+    try:
+        return UUID(raw_value)
+    except ValueError as error:
+        raise RuntimeConfigurationError(
+            RuntimeConfigurationErrorCode.IDENTIFIER_INVALID,
+            variable_name=variable_name,
+        ) from error
+
+
+__all__ = [
+    "DOCWEAVE_APPROVED_BY_ACTOR_ID",
+    "DOCWEAVE_CLASSIFICATION_PROMPT_VERSION",
+    "DOCWEAVE_DATABASE_URL",
+    "DOCWEAVE_TAXONOMY_VERSION_ID",
+    "DOCWEAVE_WORKSPACE_ID",
+    "ConfiguredClassificationRuntime",
+    "ConfiguredReviewDecisionRuntime",
+    "RuntimeConfigurationError",
+    "RuntimeConfigurationErrorCode",
+    "RuntimeEnvironmentConfig",
+    "RuntimeIntegrationSnapshot",
+    "build_configured_classification_runtime",
+    "build_configured_review_decision_runtime",
+    "load_runtime_environment_config",
+    "runtime_integration_snapshot",
+]
