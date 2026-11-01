@@ -18,11 +18,11 @@ from sqlalchemy.engine import Engine
 from docweave.analysis import (
     APPROVED_LLM_MODEL_ID,
     APPROVED_LLM_REGION,
-    CLASSIFICATION_CONTRACT_VERSION,
     LlmClassificationGateway,
     LlmGatewayConfig,
     create_llm_runtime_client,
 )
+from docweave.analysis.ollama_request import LOCAL_PROMPT_VERSION
 from docweave.persistence import (
     SQLiteSimpleMemoryRepository,
     SQLiteTransactionRunner,
@@ -87,7 +87,7 @@ class RuntimeEnvironmentConfig:
     workspace_id: UUID
     taxonomy_version_id: UUID
     approved_by_actor_id: UUID
-    classification_prompt_version: str = CLASSIFICATION_CONTRACT_VERSION
+    classification_prompt_version: str = LOCAL_PROMPT_VERSION
     llm_config: LlmGatewayConfig = field(default_factory=LlmGatewayConfig)
 
     def __post_init__(self) -> None:
@@ -192,7 +192,7 @@ def load_runtime_environment_config(
         ),
         classification_prompt_version=values.get(
             DOCWEAVE_CLASSIFICATION_PROMPT_VERSION,
-            CLASSIFICATION_CONTRACT_VERSION,
+            LOCAL_PROMPT_VERSION,
         ),
     )
 

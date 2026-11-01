@@ -183,7 +183,7 @@ TEXT = QColor("#EAF5F1")
 MUTED = QColor("#8FAAA1")
 ACCENT = QColor("#67D8B0")
 WARNING = QColor("#E1AB4D")
-DEFAULT_DEMO_DOCUMENT_FOLDER = Path(__file__).parents[3] / "pdf_sintetici"
+DEFAULT_DEMO_DOCUMENT_FOLDER = Path.cwd() / "pdf_sintetici"
 _RESTORE_MEMORY_QUERY = sql_text(
     """
     WITH latest_history AS (

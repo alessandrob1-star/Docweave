@@ -18,8 +18,11 @@ from docweave.analysis.contracts import (
     CLASSIFICATION_CONTRACT_VERSION,
     ClassificationProposal,
 )
+from docweave.analysis.ollama_request import (
+    LocalContextLimitError,
+    build_local_request,
+)
 from docweave.analysis.request import classification_v1_converse_fields
-from docweave.analysis.schema import classification_v1_json_schema
 from docweave.analysis.taxonomy import TAXONOMY_VERSION
 from docweave.analysis.validation import (
     ClassificationValidationCode,
@@ -34,9 +37,6 @@ LLM_CONNECT_TIMEOUT_SECONDS = 5
 LLM_READ_TIMEOUT_SECONDS = 600
 LLM_TOTAL_MAX_ATTEMPTS = 5
 _MAXIMUM_TRANSPORT_BYTES = 2_000_000
-_CONTEXT_TOKEN_LIMIT = 32_768
-_OUTPUT_TOKEN_LIMIT = 4_096
-_CHAT_TEMPLATE_RESERVE = 1_024
 _MAXIMUM_REQUEST_ID_CHARACTERS = 128
 _MAXIMUM_VALIDATION_RETRY_ATTEMPTS = 2
 _VALIDATION_RETRY_CODES = {
@@ -230,43 +230,11 @@ class OllamaClient:
         return result
 
     def converse(self, **kwargs: Any) -> dict[str, Any]:
-        schema = classification_v1_json_schema()
-        messages = [
-            {
-                "role": "system",
-                "content": "\n".join(item["text"] for item in kwargs["system"])
-                + "\nReturn the classification as JSON matching this schema: "
-                + json.dumps(schema),
-            }
-        ]
-        messages.extend(
-            {
-                "role": item["role"],
-                "content": "\n".join(block["text"] for block in item["content"]),
-            }
-            for item in kwargs["messages"]
-        )
-        # A UTF-8 byte can require a token. Use a conservative bound rather
-        # than allowing the model server to silently truncate source evidence.
-        prompt_bytes = sum(len(item["content"].encode("utf-8")) for item in messages)
-        if prompt_bytes > (
-            _CONTEXT_TOKEN_LIMIT - _OUTPUT_TOKEN_LIMIT - _CHAT_TEMPLATE_RESERVE
-        ):
-            raise LlmGatewayError(LlmGatewayErrorCode.REQUEST_INVALID)
-        return self.request(
-            "/api/chat",
-            {
-                "model": self.config.model_id,
-                "messages": messages,
-                "stream": False,
-                "format": schema,
-                "options": {
-                    "temperature": 0,
-                    "num_predict": _OUTPUT_TOKEN_LIMIT,
-                    "num_ctx": _CONTEXT_TOKEN_LIMIT,
-                },
-            },
-        )
+        try:
+            payload = build_local_request(self.config.model_id, kwargs)
+        except LocalContextLimitError as error:
+            raise LlmGatewayError(LlmGatewayErrorCode.REQUEST_INVALID) from error
+        return self.request("/api/chat", payload)
 
 
 def model_available() -> bool:

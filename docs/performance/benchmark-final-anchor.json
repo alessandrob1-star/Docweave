@@ -1,0 +1,29 @@
+[
+  {
+    "file": "attachment_07.pdf",
+    "model": "qwen2.5:14b-instruct",
+    "extraction_seconds": 0.256,
+    "source_sha256": "d57248fcb16d2069f3837c180c508d77f2aa424b380526f43d145bf7433f44d0",
+    "validated": true,
+    "predicted_class": "supplier_receipt",
+    "evidence_count": 7,
+    "inference_seconds": 25.166,
+    "retry_attempts": 0,
+    "requests": [
+      {
+        "wall_seconds": 25.165,
+        "input_tokens": 1263,
+        "output_tokens": 782,
+        "load_duration_ns": 3120700,
+        "prompt_eval_duration_ns": 33281000,
+        "eval_duration_ns": 24820397000,
+        "done_reason": "stop"
+      }
+    ],
+    "memory": {
+      "bytes": 10279599471,
+      "gpu_bytes": 10279599471,
+      "context": 8192
+    }
+  }
+]

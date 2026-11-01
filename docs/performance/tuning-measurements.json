@@ -1,0 +1,407 @@
+{
+  "model": "qwen2.5:14b-instruct",
+  "prompt_version": "classification.ollama.compact.v1",
+  "hardware": "NVIDIA GeForce RTX 3060, 12 GB VRAM",
+  "baseline": {
+    "file": "attachment_07.pdf",
+    "source_sha256": "d57248fcb16d2069f3837c180c508d77f2aa424b380526f43d145bf7433f44d0",
+    "inference_seconds": 409.963,
+    "input_tokens": 4289,
+    "output_tokens": 2136,
+    "context_tokens": 32768,
+    "placement": "34% CPU / 66% GPU"
+  },
+  "initial_tuning_probe": [
+    {
+      "file": "attachment_07.pdf",
+      "label": "delivery_note",
+      "prompt_bytes": 4613,
+      "budget": 5632,
+      "pages": 2,
+      "validated": true,
+      "class": "supplier_receipt",
+      "evidence_count": 6,
+      "metadata_count": 6,
+      "retry_attempts": 0,
+      "inference_seconds": 31.929,
+      "extraction_seconds": 0.275,
+      "requests": [
+        {
+          "wall_seconds": 31.929,
+          "input_tokens": 1240,
+          "output_tokens": 668,
+          "load_seconds": 8.549,
+          "prompt_seconds": 1.2,
+          "generation_seconds": 22.161,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    },
+    {
+      "file": "attachment_081.pdf",
+      "label": "invoice",
+      "prompt_bytes": 4300,
+      "budget": 5632,
+      "pages": 2,
+      "validated": true,
+      "class": "invoice",
+      "evidence_count": 6,
+      "metadata_count": 6,
+      "retry_attempts": 0,
+      "inference_seconds": 24.884,
+      "extraction_seconds": 0.283,
+      "requests": [
+        {
+          "wall_seconds": 24.883,
+          "input_tokens": 1183,
+          "output_tokens": 694,
+          "load_seconds": 0.004,
+          "prompt_seconds": 0.703,
+          "generation_seconds": 24.088,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    },
+    {
+      "file": "attachment_094.pdf",
+      "label": "purchase_order",
+      "prompt_bytes": 4347,
+      "budget": 5632,
+      "pages": 2,
+      "validated": false,
+      "error": "LlmGatewayError:invalid_model_output",
+      "requests": [
+        {
+          "wall_seconds": 21.313,
+          "input_tokens": 1193,
+          "output_tokens": 633,
+          "load_seconds": 0.004,
+          "prompt_seconds": 0.711,
+          "generation_seconds": 20.512,
+          "done_reason": "stop"
+        },
+        {
+          "wall_seconds": 19.906,
+          "input_tokens": 1294,
+          "output_tokens": 570,
+          "load_seconds": 0.003,
+          "prompt_seconds": 0.994,
+          "generation_seconds": 18.827,
+          "done_reason": "stop"
+        },
+        {
+          "wall_seconds": 30.738,
+          "input_tokens": 1395,
+          "output_tokens": 925,
+          "load_seconds": 0.004,
+          "prompt_seconds": 1.001,
+          "generation_seconds": 29.647,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    },
+    {
+      "file": "attachment_162.pdf",
+      "label": "supplier_receipt",
+      "prompt_bytes": 4117,
+      "budget": 5632,
+      "pages": 2,
+      "validated": false,
+      "error": "LlmGatewayError:invalid_model_output",
+      "requests": [
+        {
+          "wall_seconds": 25.662,
+          "input_tokens": 1066,
+          "output_tokens": 755,
+          "load_seconds": 0.004,
+          "prompt_seconds": 0.8,
+          "generation_seconds": 24.754,
+          "done_reason": "stop"
+        },
+        {
+          "wall_seconds": 28.005,
+          "input_tokens": 1167,
+          "output_tokens": 842,
+          "load_seconds": 0.005,
+          "prompt_seconds": 0.595,
+          "generation_seconds": 27.283,
+          "done_reason": "stop"
+        },
+        {
+          "wall_seconds": 23.097,
+          "input_tokens": 1268,
+          "output_tokens": 696,
+          "load_seconds": 0.003,
+          "prompt_seconds": 0.598,
+          "generation_seconds": 22.35,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    },
+    {
+      "file": "attachment_07.pdf",
+      "label": "delivery_note",
+      "prompt_bytes": 4613,
+      "budget": 5632,
+      "pages": 2,
+      "repeat": true,
+      "validated": true,
+      "class": "supplier_receipt",
+      "evidence_count": 6,
+      "metadata_count": 6,
+      "retry_attempts": 0,
+      "inference_seconds": 23.631,
+      "extraction_seconds": 0.258,
+      "requests": [
+        {
+          "wall_seconds": 23.631,
+          "input_tokens": 1240,
+          "output_tokens": 726,
+          "load_seconds": 0.004,
+          "prompt_seconds": 0.034,
+          "generation_seconds": 23.439,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    }
+  ],
+  "final_tuning_probe": [
+    {
+      "file": "attachment_07.pdf",
+      "label": "delivery_note",
+      "prompt_bytes": 4741,
+      "budget": 5632,
+      "pages": 2,
+      "validated": true,
+      "class": "supplier_receipt",
+      "evidence_count": 7,
+      "metadata_count": 6,
+      "retry_attempts": 0,
+      "inference_seconds": 23.75,
+      "extraction_seconds": 0.26,
+      "requests": [
+        {
+          "wall_seconds": 23.749,
+          "input_tokens": 1263,
+          "output_tokens": 702,
+          "load_seconds": 0.006,
+          "prompt_seconds": 1.089,
+          "generation_seconds": 22.477,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    },
+    {
+      "file": "attachment_081.pdf",
+      "label": "invoice",
+      "prompt_bytes": 4428,
+      "budget": 5632,
+      "pages": 2,
+      "validated": true,
+      "class": "invoice",
+      "evidence_count": 7,
+      "metadata_count": 6,
+      "retry_attempts": 0,
+      "inference_seconds": 24.328,
+      "extraction_seconds": 0.273,
+      "requests": [
+        {
+          "wall_seconds": 24.327,
+          "input_tokens": 1206,
+          "output_tokens": 732,
+          "load_seconds": 0.004,
+          "prompt_seconds": 0.695,
+          "generation_seconds": 23.519,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    },
+    {
+      "file": "attachment_094.pdf",
+      "label": "purchase_order",
+      "prompt_bytes": 4475,
+      "budget": 5632,
+      "pages": 2,
+      "validated": true,
+      "class": "purchase_order",
+      "evidence_count": 7,
+      "metadata_count": 6,
+      "retry_attempts": 0,
+      "inference_seconds": 24.182,
+      "extraction_seconds": 0.26,
+      "requests": [
+        {
+          "wall_seconds": 24.181,
+          "input_tokens": 1216,
+          "output_tokens": 719,
+          "load_seconds": 0.004,
+          "prompt_seconds": 0.698,
+          "generation_seconds": 23.348,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    },
+    {
+      "file": "attachment_162.pdf",
+      "label": "supplier_receipt",
+      "prompt_bytes": 4245,
+      "budget": 5632,
+      "pages": 2,
+      "validated": true,
+      "class": "supplier_receipt",
+      "evidence_count": 8,
+      "metadata_count": 6,
+      "retry_attempts": 0,
+      "inference_seconds": 24.956,
+      "extraction_seconds": 0.266,
+      "requests": [
+        {
+          "wall_seconds": 24.956,
+          "input_tokens": 1089,
+          "output_tokens": 750,
+          "load_seconds": 0.004,
+          "prompt_seconds": 0.587,
+          "generation_seconds": 24.229,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    },
+    {
+      "file": "attachment_07.pdf",
+      "label": "delivery_note",
+      "prompt_bytes": 4741,
+      "budget": 5632,
+      "pages": 2,
+      "repeat": true,
+      "validated": true,
+      "class": "supplier_receipt",
+      "evidence_count": 7,
+      "metadata_count": 6,
+      "retry_attempts": 0,
+      "inference_seconds": 25.56,
+      "extraction_seconds": 0.271,
+      "requests": [
+        {
+          "wall_seconds": 25.56,
+          "input_tokens": 1263,
+          "output_tokens": 782,
+          "load_seconds": 0.004,
+          "prompt_seconds": 0.032,
+          "generation_seconds": 25.35,
+          "done_reason": "stop"
+        }
+      ],
+      "memory": {
+        "bytes": 10279599471,
+        "gpu_bytes": 10279599471,
+        "context": 8192
+      }
+    }
+  ],
+  "corpus_input_budget": {
+    "kind": "input-budget-check-only-not-inference",
+    "count": 100,
+    "fitting": 100,
+    "budget_bytes": 5632,
+    "maximum_prompt_bytes": 4946,
+    "minimum_prompt_bytes": 4245
+  },
+  "live_worker_batch": {
+    "started": [
+      "attachment_081.pdf",
+      "attachment_094.pdf",
+      "attachment_162.pdf"
+    ],
+    "predicted_classes": [
+      "invoice",
+      "purchase_order",
+      "supplier_receipt"
+    ],
+    "errors": [],
+    "summary": [
+      {
+        "completed": 3,
+        "failed": 0,
+        "total": 3
+      }
+    ],
+    "persisted_counts": {
+      "documents": 3,
+      "agent_runs": 3,
+      "proposals": 3
+    },
+    "runtime": [
+      {
+        "duration_ms": 23133,
+        "input_tokens": 1206,
+        "model_id": "qwen2.5:14b-instruct",
+        "output_tokens": 729,
+        "prompt_version": "classification.ollama.compact.v1",
+        "retry_attempts": 0
+      },
+      {
+        "duration_ms": 21680,
+        "input_tokens": 1216,
+        "model_id": "qwen2.5:14b-instruct",
+        "output_tokens": 686,
+        "prompt_version": "classification.ollama.compact.v1",
+        "retry_attempts": 0
+      },
+      {
+        "duration_ms": 24569,
+        "input_tokens": 1089,
+        "model_id": "qwen2.5:14b-instruct",
+        "output_tokens": 778,
+        "prompt_version": "classification.ollama.compact.v1",
+        "retry_attempts": 0
+      }
+    ],
+    "expected_prompt_version": "classification.ollama.compact.v1",
+    "source_files_unchanged": true
+  }
+}

@@ -185,7 +185,10 @@ def build_content_addressed_identity(
     key = (
         idempotency_key.strip()
         if idempotency_key is not None and idempotency_key.strip()
-        else f"classification.v1:{config.workspace_id}:{source_sha256}"
+        else (
+            f"classification.v1:{config.workspace_id}:{source_sha256}:"
+            f"{config.classification_prompt_version}"
+        )
     )
     document_id = uuid5(
         _IDENTITY_NAMESPACE,
@@ -197,11 +200,11 @@ def build_content_addressed_identity(
     )
     agent_run_id = uuid5(
         _IDENTITY_NAMESPACE,
-        f"{document_version_id}:agent-run:{key}",
+        f"{document_version_id}:agent-run:{config.classification_prompt_version}:{key}",
     )
     proposal_id = uuid5(
         _IDENTITY_NAMESPACE,
-        f"{document_version_id}:proposal:{key}",
+        f"{document_version_id}:proposal:{config.classification_prompt_version}:{key}",
     )
     return ClassificationRunIdentity(
         workspace_id=config.workspace_id,
@@ -773,6 +776,16 @@ def _persist_simple_analysis(  # noqa: PLR0913
                     "rationale": model_run.proposal.rationale,
                     "candidate_metadata": metadata,
                     "evidence_count": len(model_run.proposal.evidence),
+                    "runtime": {
+                        "prompt_version": (
+                            configured.config.classification_prompt_version
+                        ),
+                        "model_id": model_run.provenance.model_id,
+                        "input_tokens": model_run.provenance.usage.input_tokens,
+                        "output_tokens": model_run.provenance.usage.output_tokens,
+                        "duration_ms": model_run.provenance.observed_duration_ms,
+                        "retry_attempts": model_run.provenance.retry_attempts,
+                    },
                 }
             ),
             summary=model_run.proposal.rationale,

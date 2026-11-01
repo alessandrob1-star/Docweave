@@ -1,5 +1,23 @@
 # Verification - 2026-11-01
 
+## Latest local-model calibration
+
+See [the tuning report](performance/local-model-tuning.md) for actual requests,
+GPU placement, before/after latency, and the live three-document worker proof.
+The latest full local suite passed **480 tests in 85.32 seconds**, with **86%
+aggregate coverage**. Ruff and MyPy passed for application, tests, and the
+reproducible benchmark script.
+
+An earlier full run had one extraction-worker timeout on `upload_2784.pdf`.
+Its isolated rerun completed in 0.26 s and the subsequent full suite passed.
+The extraction timeout and failure behavior were not relaxed or bypassed;
+the cause of that transient failure is not established. Monitor recurrence.
+
+Hosted checks also exposed a packaged-install assumption in the demo folder
+default. That default now uses the launch working directory instead of the
+installed module directory. The affected desktop test passed against a newly
+built, normally installed wheel. Hosted status is reported separately.
+
 ## Automated checks
 
 - Python 3.14 on Windows; isolated local virtual environment.

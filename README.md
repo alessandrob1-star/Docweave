@@ -61,11 +61,17 @@ truncation of document evidence; long-document chunking is not implemented.
 The application supports local single-user operation; shared-server deployment
 and multi-user authentication are outside its current scope.
 
-The first live local sample required about 410 seconds of inference on the
-tested RTX 3060 system. Its predicted class also differed from the synthetic
-corpus label, which is absent from the current application taxonomy. This
-release demonstrates the local workflow; classification quality and batch
-throughput require further validation. See the verification report.
+After local tuning, the comparison PDF took about 25 seconds instead of the
+initial 410 seconds on the tested RTX 3060. Four selected PDFs and a repeat
+produced valid responses without retries, and a live three-file batch completed
+and persisted all three proposals. These are small-sample measurements, not a
+validated accuracy benchmark. The delivery-note corpus label is still absent
+from the application taxonomy. See [the tuning evidence](docs/performance/local-model-tuning.md).
+
+Short documents use an 8,192-token context. Longer documents receive a larger
+context only when their full evidence requires it, up to 32,768 tokens; those
+may require system memory and run slower. Inputs beyond the maximum budget
+are rejected explicitly. No document text is silently cut to fit.
 
 ## Development and verification
 

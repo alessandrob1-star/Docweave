@@ -1,4 +1,5 @@
 import json
+from dataclasses import replace
 from decimal import Decimal
 from pathlib import Path
 from types import SimpleNamespace
@@ -60,10 +61,30 @@ def test_content_addressed_identity_is_stable_and_workspace_scoped() -> None:
     assert first == second
     assert first.document_id != changed.document_id
     assert first.version_number == 1
-    assert (
-        first.idempotency_key
-        == f"classification.v1:{config.workspace_id}:{source_sha256}"
+    assert first.idempotency_key == (
+        f"classification.v1:{config.workspace_id}:{source_sha256}:"
+        f"{config.classification_prompt_version}"
     )
+
+
+def test_new_prompt_keeps_document_identity_and_creates_new_run_and_proposal() -> None:
+    config = RuntimeEnvironmentConfig(
+        database_url="sqlite:///:memory:",
+        workspace_id=UUID("11111111-1111-4111-8111-111111111111"),
+        taxonomy_version_id=UUID("22222222-2222-4222-8222-222222222222"),
+        approved_by_actor_id=UUID("33333333-3333-4333-8333-333333333333"),
+    )
+    first = build_content_addressed_identity(
+        config, source_sha256="ab" * 32, idempotency_key="same-retry-key"
+    )
+    second = build_content_addressed_identity(
+        replace(config, classification_prompt_version="next-prompt"),
+        source_sha256="ab" * 32,
+        idempotency_key="same-retry-key",
+    )
+    assert first.document_id == second.document_id
+    assert first.agent_run_id != second.agent_run_id
+    assert first.proposal_id != second.proposal_id
 
 
 def test_main_prints_sanitized_success(
